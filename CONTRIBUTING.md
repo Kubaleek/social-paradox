@@ -26,3 +26,10 @@
 ## Inne
 
 - Końce linii ustawia `.gitattributes` — nie zmieniaj `core.autocrlf`.
+- VS Code: otwieraj `social-paradox.code-workspace` — firmware i app jako osobne foldery
+  (PlatformIO widzi projekt tylko, gdy `platformio.ini` leży w głównym katalogu folderu).
+
+## Release
+
+Tag na commicie z `main` (`m1`, `m3`, `demo`…) → GitHub Release z obrazem firmware'u
+(`.bin`, wgrywany od adresu `0x0`) i APK na Androida.

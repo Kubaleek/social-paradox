@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "platformio.platformio-ide",
+    "Dart-Code.flutter",
+    "Dart-Code.dart-code",
+    "EditorConfig.EditorConfig"
+  ]
+}

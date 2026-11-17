@@ -1,0 +1,3 @@
+# BLE contract: changes need a review from the other side.
+/docs/ble-protocol.md  @social-paradox/firmware @social-paradox/app
+/firmware/src/ble/     @social-paradox/app
