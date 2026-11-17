@@ -10,7 +10,6 @@
   - `ios/`, `android/` — tylko zmiany specyficzne dla platformy (`app/ios/`, `app/android/`:
     uprawnienia, podpisywanie, konfiguracja natywna).
 - `dev` — integracja. `main` — działające demo, PR `dev` → `main` po teście na sprzęcie i obu telefonach.
-- Gałęzie `ios/` i `android/` są krótkie jak każda robocza — nie ma długo żyjących gałęzi per platforma.
 
 ## Merge
 
@@ -26,5 +25,4 @@
 
 ## Inne
 
-- Sekrety nigdy w repo, tylko pliki `*.example`.
 - Końce linii ustawia `.gitattributes` — nie zmieniaj `core.autocrlf`.
