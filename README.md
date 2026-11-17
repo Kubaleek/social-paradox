@@ -27,6 +27,9 @@ commicie/PR co firmware, z akceptacją osoby od aplikacji.
   - `dev` — integracja; tu testujemy firmware razem z aplikacją.
   - `main` — zawsze działające demo; merge z `dev` dopiero po teście na sprzęcie
     i na obu telefonach (iOS + Android). Stabilne punkty tagujemy (`m1`, `m3`, `demo`).
+  - Merge: feature → `dev` przez **squash** (jeden commit na funkcję, po merge'u
+    usuń gałąź i nie pracuj na niej dalej); `dev` → `main` przez **merge commit**
+    (`--no-ff`), nigdy squash — inaczej każdy kolejny merge `dev` → `main` daje konflikty.
   - Nie ma gałęzi per platforma — Flutter to jeden kod dla iOS i Androida.
   - Zmiana kontraktu BLE: firmware + `docs/ble-protocol.md` w jednym PR,
     akceptuje osoba od aplikacji.
