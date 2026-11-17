@@ -1,0 +1,19 @@
+# Shared ignores. Subprojects keep their own .gitignore (firmware/, app/).
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.idea/
+*.iml
+*.swp
+*~
+.vscode/*
+!.vscode/extensions.json
+
+# Secrets / local env (never commit; commit *.example instead)
+.env
+.env.*
+!.env.example

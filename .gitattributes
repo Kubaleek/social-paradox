@@ -1,0 +1,24 @@
+# Normalize line endings: LF in the repo, native in working trees.
+* text=auto
+
+# Scripts that must keep LF even on Windows checkouts (run in bash/macOS/Linux, CI).
+*.sh        text eol=lf
+gradlew     text eol=lf
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# Xcode project files: keep LF, Xcode rewrites them otherwise.
+*.pbxproj   text eol=lf
+
+# Binary assets.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.pdf  binary
+*.ttf  binary
+*.otf  binary
+*.bin  binary
+*.jar  binary
