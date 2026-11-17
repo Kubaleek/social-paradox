@@ -1,4 +1,4 @@
-# Oddech Pokoju
+# Social Paradox
 
 Domowy miernik CO2 „kiedy i jak wietrzyć” — projekt na hackathon GrowUp.
 Urządzenie mierzy CO2, temperaturę i wilgotność w małych pokojach i mówi,
@@ -12,26 +12,15 @@ kiedy i jak długo wietrzyć. Aplikacja mobilna łączy się z nim przez BLE.
 | `app/`      | Aplikacja Flutter (iOS + Android, jeden kod)           | aplikacja        |
 | `docs/`     | Dokumentacja (po polsku), w tym kontrakt BLE           | wszyscy          |
 | `tools/`    | Skrypty pomocnicze (odtwarzanie CSV itp.)              | wszyscy          |
+| `.github/`  | CI, CODEOWNERS, szablon PR, rulesety gałęzi            | wszyscy          |
 
 ## Kontrakt firmware ↔ aplikacja
 
 Jedynym punktem styku jest [`docs/ble-protocol.md`](docs/ble-protocol.md)
 (powstanie w M3). Zmiana formatu BLE = zmiana tego pliku w tym samym
-commicie/PR co firmware, z akceptacją osoby od aplikacji.
+PR co firmware, z akceptacją osoby od aplikacji.
 
-## Zasady
+## Zasady pracy
 
-- Gałęzie: `feature → dev → main`.
-  - Robocze, krótkie, z prefiksem obszaru: `fw/...`, `app/...`, `docs/...`, `tools/...`
-    (zmiany tylko pod jedną platformę: np. `app/ios-permissions`). PR do `dev`.
-  - `dev` — integracja; tu testujemy firmware razem z aplikacją.
-  - `main` — zawsze działające demo; merge z `dev` dopiero po teście na sprzęcie
-    i na obu telefonach (iOS + Android). Stabilne punkty tagujemy (`m1`, `m3`, `demo`).
-  - Merge: feature → `dev` przez **squash** (jeden commit na funkcję, po merge'u
-    usuń gałąź i nie pracuj na niej dalej); `dev` → `main` przez **merge commit**
-    (`--no-ff`), nigdy squash — inaczej każdy kolejny merge `dev` → `main` daje konflikty.
-  - Nie ma gałęzi per platforma — Flutter to jeden kod dla iOS i Androida.
-  - Zmiana kontraktu BLE: firmware + `docs/ble-protocol.md` w jednym PR,
-    akceptuje osoba od aplikacji.
-- Końce linii normalizuje `.gitattributes` — nie zmieniaj `core.autocrlf` na siłę.
-- Sekrety nigdy w repo; commitujemy tylko pliki `*.example`.
+Gałęzie, merge, tytuły PR, CI i konfiguracja GitHuba:
+[`CONTRIBUTING.md`](CONTRIBUTING.md).

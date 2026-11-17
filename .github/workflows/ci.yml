@@ -1,0 +1,176 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+    # `edited` re-checks the PR title after a rename.
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  # Keep local installs on the same versions (see CONTRIBUTING.md).
+  PLATFORMIO_VERSION: "6.2.0"
+  CLANG_FORMAT_VERSION: "23.1.5"
+
+jobs:
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pattern='^(fw|app|docs|tools|ci|chore|release): .+'
+          if [[ ! "$TITLE" =~ $pattern ]]; then
+            echo "::error::PR title must be '<area>: <summary>', area in fw|app|docs|tools|ci|chore|release. Got: $TITLE"
+            exit 1
+          fi
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      firmware: ${{ steps.filter.outputs.firmware }}
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            firmware:
+              - 'firmware/**'
+              - '.github/workflows/ci.yml'
+            app:
+              - 'app/**'
+              - '.github/workflows/ci.yml'
+
+  firmware:
+    needs: changes
+    if: needs.changes.outputs.firmware == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: firmware
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: project
+        name: Detect PlatformIO project
+        run: |
+          if [ -f platformio.ini ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::firmware/platformio.ini not found, firmware checks skipped"
+          fi
+
+      - if: steps.project.outputs.present == 'true'
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - if: steps.project.outputs.present == 'true'
+        uses: actions/cache@v6
+        with:
+          path: ~/.platformio
+          key: pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-${{ hashFiles('firmware/platformio.ini') }}
+          restore-keys: pio-${{ runner.os }}-${{ env.PLATFORMIO_VERSION }}-
+
+      - if: steps.project.outputs.present == 'true'
+        name: Install tools
+        run: pip install "platformio==${PLATFORMIO_VERSION}" "clang-format==${CLANG_FORMAT_VERSION}"
+
+      - if: steps.project.outputs.present == 'true'
+        name: Check formatting
+        run: git ls-files -z -- '*.c' '*.cpp' '*.h' '*.hpp' '*.ino' | xargs -0 -r clang-format --dry-run --Werror
+
+      - if: steps.project.outputs.present == 'true'
+        name: Build default environments
+        run: pio run
+
+      - if: steps.project.outputs.present == 'true'
+        name: Unit tests (native)
+        run: |
+          if grep -q '^\[env:native\]' platformio.ini; then
+            pio test -e native
+          else
+            echo "::notice::no [env:native] in platformio.ini, unit tests skipped"
+          fi
+
+  app:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: project
+        name: Detect Flutter project
+        run: |
+          if [ -f pubspec.yaml ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::app/pubspec.yaml not found, app checks skipped"
+          fi
+
+      - if: steps.project.outputs.present == 'true'
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - if: steps.project.outputs.present == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: app/pubspec.yaml
+          cache: true
+
+      - if: steps.project.outputs.present == 'true'
+        run: flutter pub get
+
+      - if: steps.project.outputs.present == 'true'
+        name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - if: steps.project.outputs.present == 'true'
+        run: flutter analyze
+
+      - if: steps.project.outputs.present == 'true'
+        name: Unit tests
+        run: |
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "::notice::no app/test directory, tests skipped"
+          fi
+
+      - if: steps.project.outputs.present == 'true'
+        name: Build Android (debug)
+        run: flutter build apk --debug
+
+  # Single required status check for rulesets; skipped jobs count as success.
+  ci-ok:
+    if: always()
+    needs: [pr-title, changes, firmware, app]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate results
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "::error::one or more CI jobs failed"
+            exit 1
+          fi
