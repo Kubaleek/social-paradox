@@ -4,9 +4,13 @@
 
 `gałąź robocza → dev → main`
 
-- Gałęzie robocze z prefiksem obszaru: `fw/`, `app/`, `docs/`, `tools/`, `ci/`. PR zawsze do `dev`.
+- Gałęzie robocze z prefiksem obszaru: `fw/`, `app/`, `ios/`, `android/`, `docs/`, `tools/`, `ci/`.
+  PR zawsze do `dev`.
+  - `app/` — wspólny kod Fluttera (ekrany, BLE, logika) — większość pracy nad aplikacją,
+  - `ios/`, `android/` — tylko zmiany specyficzne dla platformy (`app/ios/`, `app/android/`:
+    uprawnienia, podpisywanie, konfiguracja natywna).
 - `dev` — integracja. `main` — działające demo, PR `dev` → `main` po teście na sprzęcie i obu telefonach.
-- Brak gałęzi per platforma (iOS/Android) — Flutter to jeden kod.
+- Gałęzie `ios/` i `android/` są krótkie jak każda robocza — nie ma długo żyjących gałęzi per platforma.
 
 ## Merge
 
@@ -15,7 +19,7 @@
 
 ## PR
 
-- Tytuł: `<obszar>: <opis>`, obszar: `fw`, `app`, `docs`, `tools`, `ci`, `chore`, `release`.
+- Tytuł: `<obszar>: <opis>`, obszar: `fw`, `app`, `ios`, `android`, `docs`, `tools`, `ci`, `chore`, `release`.
   Np. `fw: add SCD41 readout`. Sprawdza to CI.
 - Zmiana kontraktu BLE = firmware + `docs/ble-protocol.md` w jednym PR, akceptuje druga strona.
 - Merge tylko z zielonym CI (`ci-ok`).

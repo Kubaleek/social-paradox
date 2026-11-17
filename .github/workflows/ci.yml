@@ -30,9 +30,9 @@ jobs:
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
-          pattern='^(fw|app|docs|tools|ci|chore|release): .+'
+          pattern='^(fw|app|ios|android|docs|tools|ci|chore|release): .+'
           if [[ ! "$TITLE" =~ $pattern ]]; then
-            echo "::error::PR title must be '<area>: <summary>', area in fw|app|docs|tools|ci|chore|release. Got: $TITLE"
+            echo "::error::PR title must be '<area>: <summary>', area in fw|app|ios|android|docs|tools|ci|chore|release. Got: $TITLE"
             exit 1
           fi
 
